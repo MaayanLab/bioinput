@@ -1,0 +1,17 @@
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+input {
+  font-size: 14px;
+}
+
+p {
+  margin-top: 20px;
+}
+
+.form-group {
+  margin-top: 40px;
+}

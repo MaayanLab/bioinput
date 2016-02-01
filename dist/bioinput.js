@@ -73,6 +73,7 @@
 	      })();
 	    }
 	  }
+	
 	  function makeOptionFunction(options, key) {
 	    if (typeof options[key] !== 'function') {
 	      (function () {
@@ -174,7 +175,7 @@
 	   */
 	  function TagsInput(element, options) {
 	    this.isInit = true;
-	    this.itemsArray = [];
+	    this.entitiesArray = [];
 	
 	    this.$element = $(element);
 	    this.$element.hide();
@@ -206,7 +207,7 @@
 	      var item = inputItem;
 	      var self = this;
 	
-	      if (self.options.maxTags && self.itemsArray.length >= self.options.maxTags) {
+	      if (self.options.maxTags && self.entitiesArray.length >= self.options.maxTags) {
 	        return;
 	      }
 	
@@ -231,16 +232,16 @@
 	      }
 	
 	      // If SELECT but not multiple, remove current tag
-	      if (self.isSelect && !self.multiple && self.itemsArray.length > 0) {
-	        self.remove(self.itemsArray[0]);
+	      if (self.isSelect && !self.multiple && self.entitiesArray.length > 0) {
+	        self.remove(self.entitiesArray[0]);
 	      }
 	
 	      if (typeof item === 'string' && this.$element[0].tagName === 'INPUT') {
 	        var delimiter = self.options.delimiterRegex ? self.options.delimiterRegex : self.options.delimiter;
-	        var items = item.split(delimiter);
-	        if (items.length > 1) {
-	          for (var i = 0; i < items.length; i++) {
-	            this.add(items[i], true);
+	        var entities = item.split(delimiter);
+	        if (entities.length > 1) {
+	          for (var i = 0; i < entities.length; i++) {
+	            this.add(entities[i], true);
 	          }
 	
 	          if (!dontPushVal) {
@@ -255,8 +256,8 @@
 	      var tagClass = self.options.tagClass(item);
 	      var itemTitle = self.options.itemTitle(item);
 	
-	      // Ignore items allready added
-	      var existing = $.grep(self.itemsArray, function (searchItem) {
+	      // Ignore entities allready added
+	      var existing = $.grep(self.entitiesArray, function (searchItem) {
 	        return self.options.itemValue(searchItem) === itemValue;
 	      })[0];
 	      if (existing && !self.options.allowDuplicates) {
@@ -271,7 +272,7 @@
 	      }
 	
 	      // if length greater than limit
-	      if (self.items().toString().length + item.length + 1 > self.options.maxInputLength) {
+	      if (self.entities().toString().length + item.length + 1 > self.options.maxInputLength) {
 	        return;
 	      }
 	
@@ -283,7 +284,7 @@
 	      }
 	
 	      // register item in internal array and map
-	      self.itemsArray.push(item);
+	      self.entitiesArray.push(item);
 	
 	      // add a tag element
 	
@@ -308,7 +309,7 @@
 	      }
 	
 	      // Add class when reached maxTags
-	      if (self.options.maxTags === self.itemsArray.length || self.items().toString().length === self.options.maxInputLength) {
+	      if (self.options.maxTags === self.entitiesArray.length || self.entities().toString().length === self.options.maxInputLength) {
 	        self.$container.addClass('bioinput-max');
 	      }
 	
@@ -334,11 +335,11 @@
 	
 	      if (self.objectItems) {
 	        if ((typeof item === 'undefined' ? 'undefined' : _typeof(item)) === 'object') {
-	          item = $.grep(self.itemsArray, function (other) {
+	          item = $.grep(self.entitiesArray, function (other) {
 	            return self.options.itemValue(other) === self.options.itemValue(item);
 	          });
 	        } else {
-	          item = $.grep(self.itemsArray, function (other) {
+	          item = $.grep(self.entitiesArray, function (other) {
 	            return self.options.itemValue(other) === item;
 	          });
 	        }
@@ -358,8 +359,8 @@
 	        $('option', self.$element).filter(function () {
 	          return $(this).data('item') === item;
 	        }).remove();
-	        if ($.inArray(item, self.itemsArray) !== -1) {
-	          self.itemsArray.splice($.inArray(item, self.itemsArray), 1);
+	        if ($.inArray(item, self.entitiesArray) !== -1) {
+	          self.entitiesArray.splice($.inArray(item, self.entitiesArray), 1);
 	        }
 	      }
 	
@@ -368,7 +369,7 @@
 	      }
 	
 	      // Remove class when reached maxTags
-	      if (self.options.maxTags > self.itemsArray.length) {
+	      if (self.options.maxTags > self.entitiesArray.length) {
 	        self.$container.removeClass('bioinput-max');
 	      }
 	
@@ -376,7 +377,7 @@
 	    },
 	
 	    /**
-	     * Removes all items
+	     * Removes all entities
 	     */
 	    removeAll: function removeAll() {
 	      var self = this;
@@ -384,8 +385,8 @@
 	      $('.tag', self.$container).remove();
 	      $('option', self.$element).remove();
 	
-	      while (self.itemsArray.length > 0) {
-	        self.itemsArray.pop();
+	      while (self.entitiesArray.length > 0) {
+	        self.entitiesArray.pop();
 	      }
 	
 	      self.pushVal();
@@ -421,10 +422,10 @@
 	    },
 	
 	    /**
-	     * Returns the items added as tags
+	     * Returns the entities added as tags
 	     */
-	    items: function items() {
-	      return this.itemsArray;
+	    entities: function entities() {
+	      return this.entitiesArray;
 	    },
 	
 	    /**
@@ -433,7 +434,7 @@
 	     */
 	    pushVal: function pushVal() {
 	      var self = this;
-	      var val = $.map(self.items(), function (item) {
+	      var val = $.map(self.entities(), function (item) {
 	        return self.options.itemValue(item).toString();
 	      });
 	
@@ -523,7 +524,6 @@
 	
 	        if (event.which === 8 && getCaretPosition($targetInput[0]) === 0) {
 	          var last = $tag.last();
-	          console.log(last);
 	          if (last.length && lastKeyPressed === 8) {
 	            self.remove(last.data('item'));
 	            lastKeyPressed = 0;
@@ -721,4 +721,4 @@
 
 /***/ }
 /******/ ]);
-//# sourceMappingURL=bioinput.final.js.map
+//# sourceMappingURL=bioinput.js.map

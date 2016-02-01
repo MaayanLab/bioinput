@@ -25,9 +25,9 @@
 
 .bioinput-tag-list .tag {
   padding: .2em .6em .3em;
-  /*font-weight: 700;*/
+  font-weight: 400;
+  font-size: 90%;
   line-height: 1;
-  color: #fff;
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
@@ -39,7 +39,7 @@
 }
 
 .bioinput-tag-list .tag-to-remove {
-  background-color: red;
+  background-color: #f55757;
 }
 
 .bioinput input {

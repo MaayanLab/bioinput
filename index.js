@@ -2,8 +2,8 @@
 $(function() {
   $('input').on('change', function() {
 
-    $('.assay-val').html(JSON.stringify($('#assay').bioinput('items')));
-    $('.cell-val').html(JSON.stringify($('#cell').bioinput('items')));
+    $('.assay-val').html(JSON.stringify($('#assay').bioinput('entities')));
+    $('.cell-val').html(JSON.stringify($('#cell').bioinput('entities')));
 
   }).trigger('change');
 });

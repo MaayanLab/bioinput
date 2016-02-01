@@ -1,1 +1,2 @@
-bioinput.final.js
+dist/*
+*webpack.config*

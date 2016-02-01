@@ -6,6 +6,7 @@
     throw new Error('BioInput requires Bloodhound and it is currently undefined. ' +
       'This is included with the latest version of typeahead.js');
   }
+
   /**
    * Most options support both a string or number as well as a function as
    * option value. This function makes sure that the option with the given
@@ -24,9 +25,20 @@
       options[key] = function () { return value; };
     }
   }
+  /**
+   * HtmlEncodes the given value
+   */
+  const htmlEncodeContainer = $('<div />');
+  function htmlEncode(value) {
+    if (value) {
+      return htmlEncodeContainer.text(value).html();
+    }
+    return '';
+  }
 
   /**
    * Returns the position of the caret in the given input field
+   * http://flightschool.acylt.com/devnotes/caret-position-woes/
    */
   function getCaretPosition(oField) {
     let iCaretPos = 0;
@@ -70,20 +82,20 @@
     return found;
   }
 
-  /**
-   * HtmlEncodes the given value
-   */
-  const htmlEncodeContainer = $('<div />');
-  function htmlEncode(value) {
-    return value ? htmlEncodeContainer.text(value).html() : '';
-  }
-
   const defaultOptions = {
-    tagClass: function () { return 'bioinput-label'; },
+    tagClass: function () {
+      return 'bioinput-label bioinput-label-info';
+    },
     focusClass: 'focus',
-    itemValue: function (item) { return item ? item.toString() : item; },
-    itemText: function (item) { return this.itemValue(item); },
-    itemTitle: function () { return null; },
+    itemValue: function (item) {
+      return item ? item.toString() : item;
+    },
+    itemText: function (item) {
+      return this.itemValue(item);
+    },
+    itemTitle: function () {
+      return null;
+    },
     freeInput: true,
     addOnBlur: true,
     maxTags: undefined,
@@ -92,7 +104,9 @@
     delimiter: ',',
     delimiterRegex: null,
     cancelConfirmKeysOnEmpty: false,
-    onTagExists: function (item, $tag) { return $tag.hide().fadeIn(); },
+    onTagExists: function (item, $tag) {
+      $tag.hide().fadeIn();
+    },
     trimValue: false,
     allowDuplicates: false,
   };
@@ -100,13 +114,15 @@
   /**
    * Constructor function
    */
-  function BioInput(element, options) {
+  function TagsInput(element, options) {
     this.isInit = true;
-    this.itemsArray = [];
+    this.entitiesArray = [];
 
     this.$element = $(element);
     this.$element.hide();
 
+    this.isSelect = (element.tagName === 'SELECT');
+    this.multiple = (this.isSelect && element.hasAttribute('multiple'));
     this.objectItems = options && options.itemValue;
     this.placeholderText = element.hasAttribute('placeholder') ? this.$element.attr('placeholder') : '';
     this.inputSize = Math.max(1, this.placeholderText.length);
@@ -121,29 +137,18 @@
     this.isInit = false;
   }
 
-  BioInput.prototype = {
-    constructor: BioInput,
+  TagsInput.prototype = {
+    constructor: TagsInput,
 
     /**
      * Adds the given item as a new tag. Pass true to dontPushVal to prevent
      * updating the elements val()
      */
     add: function (inputItem, dontPushVal, options) {
+      let item = inputItem;
       const self = this;
-      const {
-        itemsArray,
-        objectItems,
-        $element,
-        $container,
-        $tagList,
-        $input,
-        isInit,
-      } = self;
-      const opts = this.options;
 
-      const item = typeof inputItem === 'string' && opts.trimValue ? $.trim(inputItem) : inputItem;
-
-      if (opts.maxTags && itemsArray.length >= opts.maxTags) {
+      if (self.options.maxTags && self.entitiesArray.length >= self.options.maxTags) {
         return;
       }
 
@@ -152,21 +157,34 @@
         return;
       }
 
-      // Throw an error when trying to add an object while the itemValue option was not set
-      if (typeof item === 'object' && !objectItems) {
-        throw new Error('Can\'t add objects when itemValue option is not set');
+      // Trim value
+      if (typeof item === 'string' && self.options.trimValue) {
+        item = $.trim(item);
       }
 
-      // // Ignore strings only containing whitespace
+      // Throw an error when trying to add an object while the itemValue option was not set
+      if (typeof item === 'object' && !self.objectItems) {
+        throw new Error("Can't add objects when itemValue option is not set");
+      }
+
+      // Ignore strings only containg whitespace
       if (item.toString().match(/^\s*$/)) {
         return;
       }
 
-      if (typeof item === 'string' && $element[0].tagName === 'INPUT') {
-        const delimiter = (opts.delimiterRegex) ? opts.delimiterRegex : opts.delimiter;
-        const itemsArr = item.split(delimiter);
-        if (itemsArr.length > 1) {
-          $.each(itemsArr, function (index, splitItem) { self.add(splitItem, true); });
+      // If SELECT but not multiple, remove current tag
+      if (self.isSelect && !self.multiple && self.entitiesArray.length > 0) {
+        self.remove(self.entitiesArray[0]);
+      }
+
+      if (typeof item === 'string' && this.$element[0].tagName === 'INPUT') {
+        const delimiter = (self.options.delimiterRegex) ? self.options.delimiterRegex : self.options.delimiter;
+        const entities = item.split(delimiter);
+        if (entities.length > 1) {
+          for (let i = 0; i < entities.length; i++) {
+            this.add(entities[i], true);
+          }
+
           if (!dontPushVal) {
             self.pushVal();
           }
@@ -174,76 +192,80 @@
         }
       }
 
-      const itemValue = opts.itemValue(item);
-      const itemText = opts.itemText(item);
-      const tagClass = opts.tagClass(item);
-      const itemTitle = opts.itemTitle(item);
+      const itemValue = self.options.itemValue(item);
+      const itemText = self.options.itemText(item);
+      const tagClass = self.options.tagClass(item);
+      const itemTitle = self.options.itemTitle(item);
 
-      // Ignore items already added
-      const existing = $.inArray(itemValue, itemsArray);
-      if (existing && !opts.allowDuplicates) {
+      // Ignore entities allready added
+      const existing = $.grep(self.entitiesArray, function (searchItem) { return self.options.itemValue(searchItem) === itemValue; })[0];
+      if (existing && !self.options.allowDuplicates) {
         // Invoke onTagExists
-        if (opts.onTagExists) {
-          const $existingTag = $('.tag', $container).filter(function f() {
-            return $(this).data('item') === existing;
-          });
-          opts.onTagExists(item, $existingTag);
+        if (self.options.onTagExists) {
+          const $existingTag = $('.tag', self.$container).filter(function () { return $(this).data('item') === existing; });
+          self.options.onTagExists(item, $existingTag);
         }
         return;
       }
 
       // if length greater than limit
-      if (self.items().toString().length + item.length + 1 > opts.maxInputLength) {
+      if (self.entities().toString().length + item.length + 1 > self.options.maxInputLength) {
         return;
       }
 
       // raise beforeItemAdd arg
-      const beforeItemAddEvent = new $.Event('beforeItemAdd', { item, cancel: false, options });
-      $element.trigger(beforeItemAddEvent);
+      const beforeItemAddEvent = new $.Event('beforeItemAdd', { item: item, cancel: false, options: options });
+      self.$element.trigger(beforeItemAddEvent);
       if (beforeItemAddEvent.cancel) {
         return;
       }
 
       // register item in internal array and map
-      itemsArray.push(item);
+      self.entitiesArray.push(item);
 
       // add a tag element
+
       const $tag = $(
         '<li class="tag ' + htmlEncode(tagClass) +
         (itemTitle !== null ? ('" title="' + itemTitle) : '') + '">' +
         htmlEncode(itemText) + '<span data-role="remove"></span></li>'
       );
       $tag.data('item', item);
-      $tagList.append($tag);
+      self.$tagList.append($tag);
       $tag.after(' ');
 
-      // Remove the 'tag-to-remove' class
-      $('.tag').each(function () {
-        $(this).removeClass('tag-to-remove');
-      });
+      // Check to see if the tag exists in its raw or uri-encoded form
+      const optionExists = (
+        $('option[value="' + encodeURIComponent(itemValue) + '"]', self.$element).length ||
+        $('option[value="' + htmlEncode(itemValue) + '"]', self.$element).length
+      );
+
+      // add <option /> if item represents a value not present in one of the <select />'s options
+      if (self.isSelect && !optionExists) {
+        const $option = $('<option selected>' + htmlEncode(itemText) + '</option>');
+        $option.data('item', item);
+        $option.attr('value', itemValue);
+        self.$element.append($option);
+      }
 
       if (!dontPushVal) {
         self.pushVal();
       }
 
       // Add class when reached maxTags
-      if (
-        opts.maxTags === itemsArray.length ||
-        self.items().toString().length === opts.maxInputLength
-      ) {
-        $container.addClass('bioinput-max');
+      if (self.options.maxTags === self.entitiesArray.length || self.entities().toString().length === self.options.maxInputLength) {
+        self.$container.addClass('bioinput-max');
       }
 
-      // If using typeahead, once the tag has been added, clear the
-      // typeahead value so it does not stick around in the input.
-      if ($('.typeahead, .twitter-typeahead', $container).length) {
-        $input.typeahead('val', '');
+      // If using typeahead, once the tag has been added, clear the typeahead value so it does not stick around in the input.
+      if ($('.typeahead, .twitter-typeahead', self.$container).length) {
+        self.$input.typeahead('val', '');
       }
 
-      if (isInit) {
-        $element.trigger(new $.Event('itemAddedOnInit', { item, options }));
+      if (this.isInit) {
+        self.$element.trigger(new $.Event('itemAddedOnInit', { item: item, options: options }));
       } else {
-        $element.trigger(new $.Event('itemAdded', { item, options }));
+        self.$element.trigger(new $.Event('itemAdded', { item: item, options: options }));
       }
     },
 
@@ -251,31 +273,30 @@
      * Removes the given item. Pass true to dontPushVal to prevent updating the
      * elements val()
      */
-    remove: function (itemToRemove, dontPushVal, options) {
-      let item = itemToRemove;
+    remove: function (inputItem, dontPushVal, options) {
+      let item = inputItem;
       const self = this;
-      const { objectItems, $element, $container, itemsArray } = self;
-      const opts = this.options;
 
-      if (objectItems) {
-        const itemToFind = typeof item === 'object' ? opts.itemValue(item) : item;
-        item = $.grep(itemsArray, function (other) { return opts.itemValue(other) === itemToFind; });
+      if (self.objectItems) {
+        if (typeof item === 'object') {
+          item = $.grep(self.entitiesArray, function (other) { return self.options.itemValue(other) === self.options.itemValue(item); });
+        } else {
+          item = $.grep(self.entitiesArray, function (other) { return self.options.itemValue(other) === item; });
+        }
         item = item[item.length - 1];
       }
 
       if (item) {
-        const beforeRemoveE = new $.Event('beforeItemRemove', { item, cancel: false, options });
-        $element.trigger(beforeRemoveE);
-        if (beforeRemoveE.cancel) {
+        const beforeItemRemoveEvent = new $.Event('beforeItemRemove', { item: item, cancel: false, options: options });
+        self.$element.trigger(beforeItemRemoveEvent);
+        if (beforeItemRemoveEvent.cancel) {
           return;
         }
 
-        $('.tag', $container).filter(function f() {
-          return $(this).data('item') === item;
-        }).remove();
-
-        if ($.inArray(item, itemsArray) !== -1) {
-          itemsArray.splice($.inArray(item, itemsArray), 1);
+        $('.tag', self.$container).filter(function () { return $(this).data('item') === item; }).remove();
+        $('option', self.$element).filter(function () { return $(this).data('item') === item; }).remove();
+        if ($.inArray(item, self.entitiesArray) !== -1) {
+          self.entitiesArray.splice($.inArray(item, self.entitiesArray), 1);
         }
       }
 
@@ -284,22 +305,27 @@
       }
 
       // Remove class when reached maxTags
-      if (opts.maxTags > itemsArray.length) {
-        $container.removeClass('bioinput-max');
+      if (self.options.maxTags > self.entitiesArray.length) {
+        self.$container.removeClass('bioinput-max');
       }
 
-      $element.trigger(new $.Event('itemRemoved', { item, options }));
+      self.$element.trigger(new $.Event('itemRemoved', { item: item, options: options }));
     },
 
     /**
-     * Removes all items
+     * Removes all entities
      */
     removeAll: function () {
-      const { $container, itemsArray } = this;
-      $('.tag', $container).remove();
-      // http://stackoverflow.com/questions/1232040/how-do-i-empty-an-array-in-javascript
-      itemsArray.splice(0, itemsArray.length);
-      this.pushVal();
+      const self = this;
+
+      $('.tag', self.$container).remove();
+      $('option', self.$element).remove();
+
+      while (self.entitiesArray.length > 0) {
+        self.entitiesArray.pop();
+      }
+
+      self.pushVal();
     },
 
     /**
@@ -307,33 +333,46 @@
      * item.
      */
     refresh: function () {
-      const { $container, options } = this;
-      $('.tag', $container).each(function each() {
+      const self = this;
+      $('.tag', self.$container).each(function () {
         const $tag = $(this);
         const item = $tag.data('item');
-        const itemText = options.itemText(item);
-        const tagClass = options.tagClass(item);
+        const itemValue = self.options.itemValue(item);
+        const itemText = self.options.itemText(item);
+        const tagClass = self.options.tagClass(item);
 
-        // Update tag's class and inner text
+          // Update tag's class and inner text
         $tag.attr('class', null);
         $tag.addClass('tag ' + htmlEncode(tagClass));
-        $tag.contents().filter(function f() { return this.nodeType === 3; })[0].nodeValue = htmlEncode(itemText);
+        $tag.contents().filter(function () {
+          return this.nodeType === 3;
+        })[0].nodeValue = htmlEncode(itemText);
+
+        if (self.isSelect) {
+          const option = $('option', self.$element).filter(function () { return $(this).data('item') === item; });
+          option.attr('value', itemValue);
+        }
       });
     },
 
     /**
-     * Returns the items added as tags
+     * Returns the entities added as tags
      */
-    items: function () { return this.itemsArray; },
+    entities: function () {
+      return this.entitiesArray;
+    },
 
     /**
      * Assembly value by retrieving the value of each item, and set it on the
      * element.
      */
     pushVal: function () {
-      const { items, options, $element } = this;
-      const val = $.map(items(), function (item) { return options.itemValue(item).toString(); });
-      $element.val(val, true).trigger('change');
+      const self = this;
+      const val = $.map(self.entities(), function (item) {
+        return self.options.itemValue(item).toString();
+      });
+
+      self.$element.val(val, true).trigger('change');
     },
 
     /**
@@ -341,65 +380,80 @@
      */
     build: function (options) {
       const self = this;
-      const { objectItems, $input, $element, $container } = self;
-      self.options = { ...defaultOptions, ...options };
-      const opts = self.options;
+
+      self.options = $.extend({}, defaultOptions, options);
       // When itemValue is set, freeInput should always be false
-      opts.freeInput = !objectItems;
-
-      makeOptionItemFunction(opts, 'itemValue');
-      makeOptionItemFunction(opts, 'itemText');
-      makeOptionFunction(opts, 'tagClass');
-
-      const autocomplete = opts.autocomplete;
-      if (autocomplete) {
-        // Determine if main configurations were passed or simply a dataset
-        const acConfig = $.isArray(autocomplete) ? autocomplete[0] : null;
-        const datasets = $.isArray(autocomplete) ? autocomplete[1] : autocomplete;
-
-        $input
-          .typeahead(acConfig, datasets)
-          .on('typeahead:selected', $.proxy(function (obj, datum) {
-            self.add(datasets.valueKey ? datum[datasets.valueKey] : datum);
-            $input.typeahead('val', '');
-          }, self));
+      if (self.objectItems) {
+        self.options.freeInput = false;
       }
 
-      $container.on('click', $.proxy(function () {
-        if (!$element.attr('disabled')) {
-          $input.removeAttr('disabled');
+      makeOptionItemFunction(self.options, 'itemValue');
+      makeOptionItemFunction(self.options, 'itemText');
+      makeOptionFunction(self.options, 'tagClass');
+
+      // typeahead.js
+      if (self.options.autocomplete) {
+        let typeaheadConfig = null;
+        let typeaheadDatasets = {};
+
+          // Determine if main configurations were passed or simply a dataset
+        const autocomplete = self.options.autocomplete;
+        if ($.isArray(autocomplete)) {
+          typeaheadConfig = autocomplete[0];
+          typeaheadDatasets = autocomplete[1];
+        } else {
+          typeaheadDatasets = autocomplete;
         }
-        $input.focus();
+
+        self.$input.typeahead(typeaheadConfig, typeaheadDatasets).on('typeahead:selected', $.proxy(function (obj, datum) {
+          if (typeaheadDatasets.valueKey) {
+            self.add(datum[typeaheadDatasets.valueKey]);
+          } else {
+            self.add(datum);
+          }
+          self.$input.typeahead('val', '');
+        }, self));
+      }
+
+      self.$container.on('click', $.proxy(function () {
+        if (! self.$element.attr('disabled')) {
+          self.$input.removeAttr('disabled');
+        }
+        self.$input.focus();
       }, self));
 
-      if (opts.addOnBlur && opts.freeInput) {
-        $input.on('focusout', $.proxy(function () {
+      if (self.options.addOnBlur && self.options.freeInput) {
+        self.$input.on('focusout', $.proxy(function () {
           // HACK: only process on focusout when no typeahead opened, to
           //       avoid adding the typeahead text as tag
-          if ($('.typeahead, .twitter-typeahead', $container).length === 0) {
-            self.add($input.val());
-            $input.val('');
+          if ($('.typeahead, .twitter-typeahead', self.$container).length === 0) {
+            self.add(self.$input.val());
+            self.$input.val('');
           }
         }, self));
       }
 
       // Toggle the 'focus' css class on the container when it has focus
-      $container.on({
-        focusin: function () { return $container.addClass(opts.focusClass); },
-        focusout: function () { return $container.removeClass(opts.focusClass); },
+      self.$container.on({
+        focusin: function () {
+          self.$container.addClass(self.options.focusClass);
+        },
+        focusout: function () {
+          self.$container.removeClass(self.options.focusClass);
+        },
       });
 
       let lastKeyPressed = 0;
-      $container.on('keydown', 'input', $.proxy(function (event) {
+
+      self.$container.on('keydown', 'input', $.proxy(function (event) {
         const $targetInput = $(event.target);
         const $tag = $('.bioinput-label');
 
-        if ($element.attr('disabled')) {
-          $input.attr('disabled', 'disabled');
+        if (self.$element.attr('disabled')) {
+          self.$input.attr('disabled', 'disabled');
           return;
         }
 
-          // Backspace pressed and cursor at beginning of input.
         if (event.which === 8 && getCaretPosition($targetInput[0]) === 0) {
           const last = $tag.last();
           if (last.length && lastKeyPressed === 8) {
@@ -416,51 +470,51 @@
             $(this).removeClass('tag-to-remove');
           });
         }
+        // Reset internal input's size
+        $targetInput.attr('size', Math.max(this.inputSize, $targetInput.val().length + 1));
       }, self));
 
-      $container.on('keypress', 'input', $.proxy(function (event) {
-        const $targetInput = $(event.target);
+      self.$container.on('keypress', 'input', $.proxy(function (event) {
+        const $input = $(event.target);
 
-        if ($element.attr('disabled')) {
-          $input.attr('disabled', 'disabled');
+        if (self.$element.attr('disabled')) {
+          self.$input.attr('disabled', 'disabled');
           return;
         }
 
-        const text = $targetInput.val();
-        const maxLengthReached = opts.maxChars && text.length >= opts.maxChars;
-        if (opts.freeInput && (keyCombinationInList(event, opts.confirmKeys) || maxLengthReached)) {
-          // Only attempt to add a tag if there is data in the field
+        const text = $input.val();
+        const maxLengthReached = self.options.maxChars && text.length >= self.options.maxChars;
+        if (self.options.freeInput && (keyCombinationInList(event, self.options.confirmKeys) || maxLengthReached)) {
+            // Only attempt to add a tag if there is data in the field
           if (text.length !== 0) {
-            const textToAdd = maxLengthReached ? text.substr(0, opts.maxChars) : text;
-            self.add(textToAdd);
-            $targetInput.val('');
+            self.add(maxLengthReached ? text.substr(0, self.options.maxChars) : text);
+            $input.val('');
           }
 
-          // If the field is empty, let the event triggered fire as usual
-          if (opts.cancelConfirmKeysOnEmpty === false) {
+            // If the field is empty, let the event triggered fire as usual
+          if (self.options.cancelConfirmKeysOnEmpty === false) {
             event.preventDefault();
           }
         }
 
          // Reset internal input's size
-        const textLength = $input.val().length + 1;
-
-        $targetInput.attr('size', Math.max(this.inputSize, textLength));
+        $input.attr('size', Math.max(this.inputSize, $input.val().length + 1));
       }, self));
 
       // Remove icon clicked
-      $container.on('click', '[data-role=remove]', $.proxy(function (event) {
-        if (!$element.attr('disabled')) {
-          self.remove($(event.target).closest('.tag').data('item'));
+      self.$container.on('click', '[data-role=remove]', $.proxy(function (event) {
+        if (self.$element.attr('disabled')) {
+          return;
         }
+        self.remove($(event.target).closest('.tag').data('item'));
       }, self));
 
       // Only add existing value as tags when using strings as tags
-      if (opts.itemValue === defaultOptions.itemValue) {
-        if ($element[0].tagName === 'INPUT') {
-          self.add($element.val());
+      if (self.options.itemValue === defaultOptions.itemValue) {
+        if (self.$element[0].tagName === 'INPUT') {
+          self.add(self.$element.val());
         } else {
-          $('option', $element).each(function each() {
+          $('option', self.$element).each(function () {
             self.add($(this).attr('value'), true);
           });
         }
@@ -468,18 +522,18 @@
     },
 
     /**
-     * Removes all bioinput behavior and unregister all event handlers
+     * Removes all bioinput behaviour and unregsiter all event handlers
      */
-    destroy: function destroy() {
-      const { $container, $element } = this;
+    destroy: function () {
+      const self = this;
 
       // Unbind events
-      $container.off('keypress', 'input');
-      $container.off('click', '[role=remove]');
+      self.$container.off('keypress', 'input');
+      self.$container.off('click', '[role=remove]');
 
-      $container.remove();
-      $element.removeData('bioinput');
-      $element.show();
+      self.$container.remove();
+      self.$element.removeData('bioinput');
+      self.$element.show();
     },
 
     /**
@@ -492,7 +546,9 @@
     /**
      * Returns the internal input element
      */
-    input: function () { return this.$input; },
+    input: function () {
+      return this.$input;
+    },
 
     /**
      * Returns the element which is wrapped around the internal input. This
@@ -513,29 +569,34 @@
    */
   $.fn.bioinput = function (arg1, arg2, arg3) {
     const results = [];
-    this.each(function each() {
+
+    this.each(function () {
       let bioinput = $(this).data('bioinput');
       // Initialize a new tags input
       if (!bioinput) {
-        bioinput = new BioInput(this, arg1);
+        bioinput = new TagsInput(this, arg1);
         $(this).data('bioinput', bioinput);
         results.push(bioinput);
 
-        // Init tags from $(this).val()
+        if (this.tagName === 'SELECT') {
+          $('option', $(this)).attr('selected', 'selected');
+        }
+
+          // Init tags from $(this).val()
         $(this).val($(this).val());
       } else if (!arg1 && !arg2) {
-        // bioinput already exists
-        // no function, trying to init
+          // bioinput already exists
+          // no function, trying to init
         results.push(bioinput);
       } else if (bioinput[arg1] !== undefined) {
-        // Invoke function on existing tags input
         let retVal;
+          // Invoke function on existing tags input
         if (bioinput[arg1].length === 3 && arg3 !== undefined) {
           retVal = bioinput[arg1](arg2, null, arg3);
         } else {
           retVal = bioinput[arg1](arg2);
         }
-        if (retVal) {
+        if (retVal !== undefined) {
           results.push(retVal);
         }
       }
@@ -548,7 +609,7 @@
     return results;
   };
 
-  $.fn.bioinput.Constructor = BioInput;
+  $.fn.bioinput.Constructor = TagsInput;
 
   const bHOpts = {
     queryTokenizer: Bloodhound.tokenizers.whitespace,

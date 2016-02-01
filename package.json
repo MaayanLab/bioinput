@@ -8,7 +8,7 @@
     "sass": "sass src/bioinput.scss:dist/bioinput.css",
     "sass:watch": "sass src/bioinput.scss:dist/bioinput.css --watch",
     "sass:min": "sass src/bioinput.scss:dist/bioinput.min.css --style compressed",
-    "compile": "npm run clean && NODE_ENV=production webpack -p && npm run sass:min"
+    "compile": "npm run clean && NODE_ENV=production webpack && npm run sass:min"
   },
   "repository": {
     "type": "git",

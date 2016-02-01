@@ -8,7 +8,7 @@ module.exports = {
   devtool: __DEV__ ? 'source-map' : null,
   output: {
     path: path.join(__dirname, 'dist'),
-    filename: __DEV__ ? 'bioinput.js' : 'bioinput.min.js',
+    filename: 'bioinput.js',
   },
   module: {
     loaders: [

@@ -20,16 +20,43 @@
 
     <section class="main-content">
       <div class="container wrapper">
+        <p>
+          Bioinput is a JavaScript library built around <a href="https://jquery.com/">jQuery</a>,
+          <a href="https://twitter.github.io/typeahead.js/">typeahead.js</a>, and the
+          <a href="http://bootstrap-tagsinput.github.io/bootstrap-tagsinput/examples/">Bootstrap Tags Input</a> libraries.
+          It allows you to quickly and easily implement an autocomplete html input element for various
+          biological entities.
+        </p>
+        <h3>Getting Started</h3>
+        <p>Include Bioinput in your project by downloading the js file or linking via a cdn.</p>
+        <pre>
+          <code>
+            &lt;div class="form-group assay"&gt;
+              &lt;label for="assay"&gt;Assay Input&lt;/label&gt;
+              &lt;input id="assay" class="form-control" type="text"
+                data-role="bioinput" data-entity-type="assay" /&gt;
+            &lt;/div&gt;
+          </code>
+        </pre>
         <form>
           <div class="form-group assay">
             <label for="assay">Assay Input</label>
-            <input id="assay" class="form-control" type="text" data-role="bioinput" data-entity-type="assay">
+            <input id="assay" class="form-control" type="text" data-role="bioinput" data-entity-type="assay" />
             <p>Result of calling <code>$('#assay').bioinput('entities');</code>:</p>
             <pre><code class="assay-val"></code></pre>
           </div>
+          <pre>
+            <code>
+              &lt;div class="form-group cell"&gt;
+                &lt;label for="cell"&gt;Cell Input&lt;/label&gt;
+                &lt;input id="cell" class="form-control" type="text"
+                  data-role="bioinput" data-entity-type="cell" /&gt;
+              &lt;/div&gt;
+            </code>
+          </pre>
           <div class="form-group cell">
             <label for="cell">Cell Input</label>
-            <input id="cell" class="form-control" type="text" data-role="bioinput" data-entity-type="cell">
+            <input id="cell" class="form-control" type="text" data-role="bioinput" data-entity-type="cell" />
             <p>Result of calling <code>$('#cell').bioinput('entities');</code>:</p>
             <pre><code class="cell-val"></code></pre>
           </div>
@@ -44,7 +71,7 @@
     </section>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
-    <script src="https://cdn.rawgit.com/MaayanLab/bioinput/master/dist/bioinput.min.js"></script>
+    <script src="https://cdn.rawgit.com/MaayanLab/bioinput/master/dist/bioinput.js"></script>
     <script src="./index.js"></script>
   </body>
 </html>

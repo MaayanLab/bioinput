@@ -7,11 +7,11 @@
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-    <link rel="stylesheet" href="https://cdn.rawgit.com/MaayanLab/bioinput/master/dist/bioinput.min.css">
+    <link rel="stylesheet" href="https://cdn.rawgit.com/MaayanLab/bioinput/v0.1.0/dist/bioinput.min.css">
   </head>
   <body>
     <section class="page-header">
-      <h1 class="project-name">Bioinput</h1>
+      <h1 class="project-name">Bioinput v0.1.0</h1>
       <h2 class="project-tagline"></h2>
       <a href="https://github.com/mgmcdermott/bioinput" class="btn">View on GitHub</a>
       <a href="https://github.com/mgmcdermott/bioinput/zipball/master" class="btn">Download .zip</a>
@@ -28,39 +28,66 @@
           biological entities.
         </p>
         <h3>Getting Started</h3>
-        <p>Include Bioinput in your project by downloading the js file or linking via a cdn.</p>
+        <p>
+          Include Bioinput (and its dependencies) in your project by adding them to your HTML.
+          First, include the css in your <code>&lt;head&gt;&lt;/head&gt;</code> tags:
+          <pre>
+            <code>
+&lt;link rel="stylesheet" href="https://cdn.rawgit.com/MaayanLab/bioinput/v0.1.0/dist/bioinput.min.css"&gt;
+            </code>
+          </pre>
+        </p>
+        <p>
+          Secondly the JavaScript. Be careful with the order of the projects you're including.
+          jQuery should be first,
+          then typeahead.js, and finally Bioinput.
+        </p>
         <pre>
           <code>
-            &lt;div class="form-group assay"&gt;
-              &lt;label for="assay"&gt;Assay Input&lt;/label&gt;
-              &lt;input id="assay" class="form-control" type="text"
-                data-role="bioinput" data-entity-type="assay" /&gt;
-            &lt;/div&gt;
+&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.rawgit.com/MaayanLab/bioinput/v0.1.0/dist/bioinput.js"&gt;&lt;/script&gt;
+          </code>
+        </pre>
+        <h3>Usage</h3>
+        <p>
+          The easiest way to use Bioinput is to add two attributes to any html input.
+          Adding <code>data-role="input"</code> enables Bioinput on the input and adding
+          <code>data-entity-type="assay"</code> would enable assay autocomplete.
+          (Currently only "assay" and "cell" are supported)
+        </p>
+        <pre>
+          <code>
+&lt;form&gt;
+  &lt;div class="form-group assay"&gt;
+    &lt;label for="assay"&gt;Assay Input&lt;/label&gt;
+    &lt;input id="assay" class="form-control" type="text"
+      data-role="bioinput" data-entity-type="assay" /&gt;
+  &lt;/div&gt;
+  &lt;div class="form-group cell"&gt;
+    &lt;label for="cell"&gt;Cell Input&lt;/label&gt;
+    &lt;input id="cell" class="form-control" type="text"
+      data-role="bioinput" data-entity-type="cell" /&gt;
+  &lt;/div&gt;
+&lt;/form&gt;
           </code>
         </pre>
         <form>
           <div class="form-group assay">
             <label for="assay">Assay Input</label>
             <input id="assay" class="form-control" type="text" data-role="bioinput" data-entity-type="assay" />
-            <p>Result of calling <code>$('#assay').bioinput('entities');</code>:</p>
-            <pre><code class="assay-val"></code></pre>
           </div>
-          <pre>
-            <code>
-              &lt;div class="form-group cell"&gt;
-                &lt;label for="cell"&gt;Cell Input&lt;/label&gt;
-                &lt;input id="cell" class="form-control" type="text"
-                  data-role="bioinput" data-entity-type="cell" /&gt;
-              &lt;/div&gt;
-            </code>
-          </pre>
           <div class="form-group cell">
             <label for="cell">Cell Input</label>
             <input id="cell" class="form-control" type="text" data-role="bioinput" data-entity-type="cell" />
-            <p>Result of calling <code>$('#cell').bioinput('entities');</code>:</p>
-            <pre><code class="cell-val"></code></pre>
           </div>
         </form>
+        <h3>Getting Results</h3>
+        <p>Continuing with the example, the entities the user has selected can be accessed as follows:</p>
+        <p>Result of calling <code>$('#assay').bioinput('entities');</code>:</p>
+        <pre><code class="assay-val"></code></pre>
+        <p>Result of calling <code>$('#cell').bioinput('entities');</code>:</p>
+        <pre><code class="cell-val"></code></pre>
       </div>
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/mgmcdermott/bioinput">Bioinput</a> is maintained by <a href="https://github.com/mgmcdermott">mgmcdermott</a>.</span>
@@ -71,7 +98,7 @@
     </section>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
-    <script src="https://cdn.rawgit.com/MaayanLab/bioinput/master/dist/bioinput.js"></script>
+    <script src="https://cdn.rawgit.com/MaayanLab/bioinput/v0.1.0/dist/bioinput.js"></script>
     <script src="./index.js"></script>
   </body>
 </html>

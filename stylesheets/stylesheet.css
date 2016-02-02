@@ -20,6 +20,10 @@ a {
   font-size: 14px;
 }
 
+.form-group {
+  margin-bottom: 20px;
+}
+
 .btn {
   display: inline-block;
   margin-bottom: 1rem;

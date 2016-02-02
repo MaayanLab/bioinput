@@ -641,6 +641,30 @@
     },
   });
 
+  const geneEngine = new Bloodhound({
+    ...bHOpts,
+    remote: {
+      ...bHOpts.remote,
+      url: 'http://amp.pharm.mssm.edu/LDR/api/autocomplete/genes?q=%QUERY',
+    },
+  });
+
+  const diseaseEngine = new Bloodhound({
+    ...bHOpts,
+    remote: {
+      ...bHOpts.remote,
+      url: 'http://amp.pharm.mssm.edu/LDR/api/autocomplete/diseases?q=%QUERY',
+    },
+  });
+
+  const organismEngine = new Bloodhound({
+    ...bHOpts,
+    remote: {
+      ...bHOpts.remote,
+      url: 'http://amp.pharm.mssm.edu/LDR/api/autocomplete/organisms?q=%QUERY',
+    },
+  });
+
   $(function () {
     $('input[data-role=bioinput][data-entity-type=assay]').bioinput({
       autocomplete: {
@@ -650,6 +674,21 @@
     $('input[data-role=bioinput][data-entity-type=cell]').bioinput({
       autocomplete: {
         source: cellLineEngine,
+      },
+    });
+    $('input[data-role=bioinput][data-entity-type=gene]').bioinput({
+      autocomplete: {
+        source: geneEngine,
+      },
+    });
+    $('input[data-role=bioinput][data-entity-type=disease]').bioinput({
+      autocomplete: {
+        source: diseaseEngine,
+      },
+    });
+    $('input[data-role=bioinput][data-entity-type=organism]').bioinput({
+      autocomplete: {
+        source: organismEngine,
       },
     });
   });

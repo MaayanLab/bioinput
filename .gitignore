@@ -1,2 +1,4 @@
 .sass_cache
+.sass_cache/
+.sass_cache/*
 node_modules

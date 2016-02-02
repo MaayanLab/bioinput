@@ -241,6 +241,15 @@ a {
 .site-footer-credits {
   color: #819198; }
 
+.site-footer p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.center {
+  text-align: center;
+}
+
 @media screen and (min-width: 64em) {
   .site-footer {
     font-size: 1rem; } }

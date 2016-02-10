@@ -629,7 +629,7 @@
     ...bHOpts,
     remote: {
       ...bHOpts.remote,
-      url: 'http://amp.pharm.mssm.edu/LDR/api/autocomplete/assays?q=%QUERY',
+      url: 'http://amp.pharm.mssm.edu/biocomplete/api/v1/assay/suggest?q=%QUERY',
     },
   });
 
@@ -637,7 +637,7 @@
     ...bHOpts,
     remote: {
       ...bHOpts.remote,
-      url: 'http://amp.pharm.mssm.edu/LDR/api/autocomplete/cellLines?q=%QUERY',
+      url: 'http://amp.pharm.mssm.edu/biocomplete/api/v1/cellLine/suggest?q=%QUERY',
     },
   });
 
@@ -645,7 +645,7 @@
     ...bHOpts,
     remote: {
       ...bHOpts.remote,
-      url: 'http://amp.pharm.mssm.edu/LDR/api/autocomplete/genes?q=%QUERY',
+      url: 'http://amp.pharm.mssm.edu/biocomplete/api/v1/gene/suggest?q=%QUERY',
     },
   });
 
@@ -653,7 +653,7 @@
     ...bHOpts,
     remote: {
       ...bHOpts.remote,
-      url: 'http://amp.pharm.mssm.edu/LDR/api/autocomplete/diseases?q=%QUERY',
+      url: 'http://amp.pharm.mssm.edu/biocomplete/api/v1/disease/suggest?q=%QUERY',
     },
   });
 
@@ -661,7 +661,7 @@
     ...bHOpts,
     remote: {
       ...bHOpts.remote,
-      url: 'http://amp.pharm.mssm.edu/LDR/api/autocomplete/organisms?q=%QUERY',
+      url: 'http://amp.pharm.mssm.edu/biocomplete/api/v1/organism/suggest?q=%QUERY',
     },
   });
 

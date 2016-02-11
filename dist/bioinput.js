@@ -12,11 +12,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     throw new Error('BioInput requires Bloodhound and it is currently undefined. ' + 'This is included with the latest version of typeahead.js');
   }
 
-  /**
-   * Most options support both a string or number as well as a function as
-   * option value. This function makes sure that the option with the given
-   * key in the given options is wrapped in a function
-   */
   function makeOptionItemFunction(options, key) {
     if (typeof options[key] !== 'function') {
       (function () {
@@ -38,9 +33,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       })();
     }
   }
-  /**
-   * HtmlEncodes the given value
-   */
+
   var htmlEncodeContainer = $('<div />');
   function htmlEncode(value) {
     if (value) {
@@ -49,10 +42,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     return '';
   }
 
-  /**
-   * Returns the position of the caret in the given input field
-   * http://flightschool.acylt.com/devnotes/caret-position-woes/
-   */
   function getCaretPosition(oField) {
     var iCaretPos = 0;
     if (document.selection) {
@@ -66,13 +55,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     return iCaretPos;
   }
 
-  /**
-    * Returns boolean indicates whether user has pressed an expected key combination.
-    * @param object keyPressEvent: JavaScript event object, refer
-    *     http://www.w3.org/TR/2003/WD-DOM-Level-3-Events-20030331/ecma-script-binding.html
-    * @param object lookupList: expected key combinations, as in:
-    *     [13, {which: 188, shiftKey: true}]
-    */
   function keyCombinationInList(keyPressEvent, lookupList) {
     var found = false;
     $.each(lookupList, function (index, keyCombination) {
@@ -124,9 +106,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     allowDuplicates: false
   };
 
-  /**
-   * Constructor function
-   */
   function TagsInput(element, options) {
     this.isInit = true;
     this.entitiesArray = [];
@@ -151,10 +130,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
   TagsInput.prototype = {
     constructor: TagsInput,
 
-    /**
-     * Adds the given item as a new tag. Pass true to dontPushVal to prevent
-     * updating the elements val()
-     */
     add: function add(inputItem, dontPushVal, options) {
       var item = inputItem;
       var self = this;
@@ -163,22 +138,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         return;
       }
 
-      // Ignore falsey values, except false
       if (item !== false && !item) {
         return;
       }
 
-      // Trim value
       if (typeof item === 'string' && self.options.trimValue) {
         item = $.trim(item);
       }
 
-      // Throw an error when trying to add an object while the itemValue option was not set
       if ((typeof item === 'undefined' ? 'undefined' : _typeof(item)) === 'object' && !self.objectItems) {
         throw new Error("Can't add objects when itemValue option is not set");
       }
 
-      // Ignore strings only containg whitespace
       if (item.toString().match(/^\s*$/)) {
         return;
       }
@@ -203,12 +174,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       var tagClass = self.options.tagClass(item);
       var itemTitle = self.options.itemTitle(item);
 
-      // Ignore entities allready added
       var existing = $.grep(self.entitiesArray, function (searchItem) {
         return self.options.itemValue(searchItem) === itemValue;
       })[0];
       if (existing && !self.options.allowDuplicates) {
-        // Invoke onTagExists
         if (self.options.onTagExists) {
           var $existingTag = $('.tag', self.$container).filter(function () {
             return $(this).data('item') === existing;
@@ -218,22 +187,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         return;
       }
 
-      // if length greater than limit
       if (self.entities().toString().length + item.length + 1 > self.options.maxInputLength) {
         return;
       }
 
-      // raise beforeItemAdd arg
       var beforeItemAddEvent = new $.Event('beforeItemAdd', { item: item, cancel: false, options: options });
       self.$element.trigger(beforeItemAddEvent);
       if (beforeItemAddEvent.cancel) {
         return;
       }
 
-      // register item in internal array and map
       self.entitiesArray.push(item);
-
-      // add a tag element
 
       var $tag = $('<li class="tag ' + htmlEncode(tagClass) + (itemTitle !== null ? '" title="' + itemTitle : '') + '">' + htmlEncode(itemText) + '<span data-role="remove"></span></li>');
       $tag.data('item', item);
@@ -244,12 +208,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         self.pushVal();
       }
 
-      // Add class when reached maxTags
       if (self.options.maxTags === self.entitiesArray.length || self.entities().toString().length === self.options.maxInputLength) {
         self.$container.addClass('bioinput-max');
       }
 
-      // If using typeahead, once the tag has been added, clear the typeahead value so it does not stick around in the input.
       if ($('.typeahead, .twitter-typeahead', self.$container).length) {
         self.$input.typeahead('val', '');
       }
@@ -261,10 +223,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       }
     },
 
-    /**
-     * Removes the given item. Pass true to dontPushVal to prevent updating the
-     * elements val()
-     */
     remove: function remove(inputItem, dontPushVal, options) {
       var item = inputItem;
       var self = this;
@@ -304,7 +262,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         self.pushVal();
       }
 
-      // Remove class when reached maxTags
       if (self.options.maxTags > self.entitiesArray.length) {
         self.$container.removeClass('bioinput-max');
       }
@@ -312,9 +269,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       self.$element.trigger(new $.Event('itemRemoved', { item: item, options: options }));
     },
 
-    /**
-     * Removes all entities
-     */
     removeAll: function removeAll() {
       var self = this;
 
@@ -328,10 +282,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       self.pushVal();
     },
 
-    /**
-     * Refreshes the tags so they match the text/value of their corresponding
-     * item.
-     */
     refresh: function refresh() {
       var self = this;
       $('.tag', self.$container).each(function () {
@@ -340,7 +290,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         var itemText = self.options.itemText(item);
         var tagClass = self.options.tagClass(item);
 
-        // Update tag's class and inner text
         $tag.attr('class', null);
         $tag.addClass('tag ' + htmlEncode(tagClass));
         $tag.contents().filter(function () {
@@ -349,17 +298,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       });
     },
 
-    /**
-     * Returns the entities added as tags
-     */
     entities: function entities() {
       return this.entitiesArray;
     },
 
-    /**
-     * Assembly value by retrieving the value of each item, and set it on the
-     * element.
-     */
     pushVal: function pushVal() {
       var self = this;
       var val = $.map(self.entities(), function (item) {
@@ -369,14 +311,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       self.$element.val(val, true).trigger('change');
     },
 
-    /**
-     * Initializes the tags input behaviour on the element
-     */
     build: function build(options) {
       var self = this;
 
       self.options = $.extend({}, defaultOptions, options);
-      // When itemValue is set, freeInput should always be false
+
       if (self.objectItems) {
         self.options.freeInput = false;
       }
@@ -390,7 +329,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           var typeaheadConfig = null;
           var typeaheadDatasets = {};
 
-          // Determine if main configurations were passed or simply a dataset
           var autocomplete = self.options.autocomplete;
           if ($.isArray(autocomplete)) {
             typeaheadConfig = autocomplete[0];
@@ -419,8 +357,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       if (self.options.addOnBlur && self.options.freeInput) {
         self.$input.on('focusout', $.proxy(function () {
-          // HACK: only process on focusout when no typeahead opened, to
-          //       avoid adding the typeahead text as tag
           if ($('.typeahead, .twitter-typeahead', self.$container).length === 0) {
             self.add(self.$input.val());
             self.$input.val('');
@@ -428,7 +364,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         }, self));
       }
 
-      // Toggle the 'focus' css class on the container when it has focus
       self.$container.on({
         focusin: function focusin() {
           self.$container.addClass(self.options.focusClass);
@@ -459,13 +394,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             lastKeyPressed = 8;
           }
         } else {
-          // Reset last key pressed and remove 'tag-to-remove' class
           lastKeyPressed = 0;
           $('.tag').each(function each() {
             $(this).removeClass('tag-to-remove');
           });
         }
-        // Reset internal input's size
+
         $targetInput.attr('size', Math.max(this.inputSize, $targetInput.val().length + 1));
       }, self));
 
@@ -480,23 +414,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         var text = $input.val();
         var maxLengthReached = self.options.maxChars && text.length >= self.options.maxChars;
         if (self.options.freeInput && (keyCombinationInList(event, self.options.confirmKeys) || maxLengthReached)) {
-          // Only attempt to add a tag if there is data in the field
           if (text.length !== 0) {
             self.add(maxLengthReached ? text.substr(0, self.options.maxChars) : text);
             $input.val('');
           }
 
-          // If the field is empty, let the event triggered fire as usual
           if (self.options.cancelConfirmKeysOnEmpty === false) {
             event.preventDefault();
           }
         }
 
-        // Reset internal input's size
         $input.attr('size', Math.max(this.inputSize, $input.val().length + 1));
       }, self));
 
-      // Remove icon clicked
       self.$container.on('click', '[data-role=remove]', $.proxy(function (event) {
         if (self.$element.attr('disabled')) {
           return;
@@ -504,7 +434,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         self.remove($(event.target).closest('.tag').data('item'));
       }, self));
 
-      // Only add existing value as tags when using strings as tags
       if (self.options.itemValue === defaultOptions.itemValue) {
         if (self.$element[0].tagName === 'INPUT') {
           self.add(self.$element.val());
@@ -516,13 +445,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       }
     },
 
-    /**
-     * Removes all bioinput behaviour and unregsiter all event handlers
-     */
     destroy: function destroy() {
       var self = this;
 
-      // Unbind events
       self.$container.off('keypress', 'input');
       self.$container.off('click', '[role=remove]');
 
@@ -531,24 +456,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       self.$element.show();
     },
 
-    /**
-     * Sets focus on the bioinput
-     */
     focus: function focus() {
       this.$input.focus();
     },
 
-    /**
-     * Returns the internal input element
-     */
     input: function input() {
       return this.$input;
     },
 
-    /**
-     * Returns the element which is wrapped around the internal input. This
-     * is normally the $container, but typeahead.js moves the $input element.
-     */
     findInputWrapper: function findInputWrapper() {
       var elt = this.$input[0];
       var container = this.$container[0];
@@ -559,29 +474,23 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }
   };
 
-  /**
-   * Register JQuery plugin
-   */
   $.fn.bioinput = function (arg1, arg2, arg3) {
     var results = [];
 
     this.each(function () {
       var bioinput = $(this).data('bioinput');
-      // Initialize a new tags input
+
       if (!bioinput) {
         bioinput = new TagsInput(this, arg1);
         $(this).data('bioinput', bioinput);
         results.push(bioinput);
 
-        // Init tags from $(this).val()
         $(this).val($(this).val());
       } else if (!arg1 && !arg2) {
-        // bioinput already exists
-        // no function, trying to init
         results.push(bioinput);
       } else if (bioinput[arg1] !== undefined) {
         var retVal = undefined;
-        // Invoke function on existing tags input
+
         if (bioinput[arg1].length === 3 && arg3 !== undefined) {
           retVal = bioinput[arg1](arg2, null, arg3);
         } else {
@@ -594,7 +503,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     });
 
     if (typeof arg1 === 'string') {
-      // Return the results from the invoked function calls
       return results.length > 1 ? results : results[0];
     }
     return results;

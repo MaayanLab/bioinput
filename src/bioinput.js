@@ -101,9 +101,7 @@
     allowDuplicates: false,
   };
 
-  /**
-   * Constructor function
-   */
+  // Constructor
   function TagsInput(element, options) {
     this.isInit = true;
     this.entitiesArray = [];

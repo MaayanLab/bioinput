@@ -83,19 +83,11 @@
   }
 
   const defaultOptions = {
-    tagClass: function () {
-      return 'bioinput-label bioinput-label-info';
-    },
+    tagClass: () => 'bioinput-label bioinput-label-info',
     focusClass: 'focus',
-    itemValue: function (item) {
-      return item ? item.toString() : item;
-    },
-    itemText: function (item) {
-      return this.itemValue(item);
-    },
-    itemTitle: function () {
-      return null;
-    },
+    itemValue: (item) => item ? item.toString() : item,
+    itemText: function (item) { return this.itemValue(item); },
+    itemTitle: () => null,
     freeInput: true,
     addOnBlur: true,
     maxTags: undefined,
@@ -104,16 +96,12 @@
     delimiter: ',',
     delimiterRegex: null,
     cancelConfirmKeysOnEmpty: false,
-    onTagExists: function (item, $tag) {
-      $tag.hide().fadeIn();
-    },
+    onTagExists: (item, $tag) => $tag.hide().fadeIn(),
     trimValue: false,
     allowDuplicates: false,
   };
 
-  /**
-   * Constructor function
-   */
+  // Constructor
   function TagsInput(element, options) {
     this.isInit = true;
     this.entitiesArray = [];
@@ -121,15 +109,16 @@
     this.$element = $(element);
     this.$element.hide();
 
-    this.isSelect = (element.tagName === 'SELECT');
-    this.multiple = (this.isSelect && element.hasAttribute('multiple'));
     this.objectItems = options && options.itemValue;
-    this.placeholderText = element.hasAttribute('placeholder') ? this.$element.attr('placeholder') : '';
+    this.placeholderText = element.hasAttribute('placeholder')
+      ? this.$element.attr('placeholder')
+      : '';
     this.inputSize = Math.max(1, this.placeholderText.length);
 
     this.$container = $('<div class="bioinput"></div>');
     this.$tagList = $('<ul class="bioinput-tag-list"></ul>').appendTo(this.$container);
-    this.$input = $('<input type="text" placeholder="' + this.placeholderText + '"/>').appendTo(this.$container);
+    this.$input = $('<input type="text" placeholder="' + this.placeholderText + '"/>')
+      .appendTo(this.$container);
 
     this.$element.before(this.$container);
 
@@ -170,11 +159,6 @@
       // Ignore strings only containg whitespace
       if (item.toString().match(/^\s*$/)) {
         return;
-      }
-
-      // If SELECT but not multiple, remove current tag
-      if (self.isSelect && !self.multiple && self.entitiesArray.length > 0) {
-        self.remove(self.entitiesArray[0]);
       }
 
       if (typeof item === 'string' && this.$element[0].tagName === 'INPUT') {
@@ -224,7 +208,6 @@
       self.entitiesArray.push(item);
 
       // add a tag element
-
       const $tag = $(
         '<li class="tag ' + htmlEncode(tagClass) +
         (itemTitle !== null ? ('" title="' + itemTitle) : '') + '">' +
@@ -233,20 +216,6 @@
       $tag.data('item', item);
       self.$tagList.append($tag);
       $tag.after(' ');
-
-      // Check to see if the tag exists in its raw or uri-encoded form
-      const optionExists = (
-        $('option[value="' + encodeURIComponent(itemValue) + '"]', self.$element).length ||
-        $('option[value="' + htmlEncode(itemValue) + '"]', self.$element).length
-      );
-
-      // add <option /> if item represents a value not present in one of the <select />'s options
-      if (self.isSelect && !optionExists) {
-        const $option = $('<option selected>' + htmlEncode(itemText) + '</option>');
-        $option.data('item', item);
-        $option.attr('value', itemValue);
-        self.$element.append($option);
-      }
 
       if (!dontPushVal) {
         self.pushVal();
@@ -337,7 +306,6 @@
       $('.tag', self.$container).each(function () {
         const $tag = $(this);
         const item = $tag.data('item');
-        const itemValue = self.options.itemValue(item);
         const itemText = self.options.itemText(item);
         const tagClass = self.options.tagClass(item);
 
@@ -347,11 +315,6 @@
         $tag.contents().filter(function () {
           return this.nodeType === 3;
         })[0].nodeValue = htmlEncode(itemText);
-
-        if (self.isSelect) {
-          const option = $('option', self.$element).filter(function () { return $(this).data('item') === item; });
-          option.attr('value', itemValue);
-        }
       });
     },
 
@@ -391,7 +354,6 @@
       makeOptionItemFunction(self.options, 'itemText');
       makeOptionFunction(self.options, 'tagClass');
 
-      // typeahead.js
       if (self.options.autocomplete) {
         let typeaheadConfig = null;
         let typeaheadDatasets = {};
@@ -405,14 +367,16 @@
           typeaheadDatasets = autocomplete;
         }
 
-        self.$input.typeahead(typeaheadConfig, typeaheadDatasets).on('typeahead:selected', $.proxy(function (obj, datum) {
-          if (typeaheadDatasets.valueKey) {
-            self.add(datum[typeaheadDatasets.valueKey]);
-          } else {
-            self.add(datum);
-          }
-          self.$input.typeahead('val', '');
-        }, self));
+        self.$input
+          .typeahead(typeaheadConfig, typeaheadDatasets)
+          .on('typeahead:selected', $.proxy(function (obj, datum) {
+            if (typeaheadDatasets.valueKey) {
+              self.add(datum[typeaheadDatasets.valueKey]);
+            } else {
+              self.add(datum);
+            }
+            self.$input.typeahead('val', '');
+          }, self));
       }
 
       self.$container.on('click', $.proxy(function () {
@@ -578,10 +542,6 @@
         $(this).data('bioinput', bioinput);
         results.push(bioinput);
 
-        if (this.tagName === 'SELECT') {
-          $('option', $(this)).attr('selected', 'selected');
-        }
-
           // Init tags from $(this).val()
         $(this).val($(this).val());
       } else if (!arg1 && !arg2) {
@@ -617,10 +577,8 @@
     remote: {
       url: '',
       wildcard: '%QUERY',
-      transform: function (response) {
-        return $.map(response, function (lineObj) {
-          return lineObj.name;
-        });
+      transform: (response) => {
+        return response;
       },
     },
   };
@@ -665,31 +623,60 @@
     },
   });
 
+  const bioInputOpts = {
+    itemValue: 'name',
+  };
+
+  const typeaheadOpts = {
+    hint: true,
+    highlight: true,
+    minLength: 1,
+  };
+
   $(function () {
-    $('input[data-role=bioinput][data-entity-type=assay]').bioinput({
-      autocomplete: {
-        source: assayEngine,
-      },
-    });
-    $('input[data-role=bioinput][data-entity-type=cell]').bioinput({
-      autocomplete: {
-        source: cellLineEngine,
-      },
-    });
-    $('input[data-role=bioinput][data-entity-type=gene]').bioinput({
-      autocomplete: {
-        source: geneEngine,
-      },
-    });
-    $('input[data-role=bioinput][data-entity-type=disease]').bioinput({
-      autocomplete: {
-        source: diseaseEngine,
-      },
-    });
-    $('input[data-role=bioinput][data-entity-type=organism]').bioinput({
-      autocomplete: {
-        source: organismEngine,
-      },
-    });
+    assayEngine
+      .initialize()
+      .done(() => {
+        $('input[data-role=bioinput][data-entity-type=assay]').bioinput({
+          ...bioInputOpts,
+          autocomplete: [{ ...typeaheadOpts }, { display: 'name', source: assayEngine }],
+        });
+      });
+
+    cellLineEngine
+      .initialize()
+      .done(() => {
+        $('input[data-role=bioinput][data-entity-type=cell]').bioinput({
+          ...bioInputOpts,
+          autocomplete: [{ ...typeaheadOpts }, { display: 'name', source: cellLineEngine }],
+        });
+      });
+
+    geneEngine
+      .initialize()
+      .done(() => {
+        $('input[data-role=bioinput][data-entity-type=gene]').bioinput({
+          ...bioInputOpts,
+          autocomplete: [{ ...typeaheadOpts }, { display: 'name', source: geneEngine }],
+        });
+      });
+
+    organismEngine
+      .initialize()
+      .done(() => {
+        $('input[data-role=bioinput][data-entity-type=organismEngine]').bioinput({
+          ...bioInputOpts,
+          autocomplete: [{ ...typeaheadOpts }, { display: 'name', source: organismEngine }],
+        });
+      });
+
+    diseaseEngine
+      .initialize()
+      .done(() => {
+        $('input[data-role=bioinput][data-entity-type=disease]').bioinput({
+          ...bioInputOpts,
+          autocomplete: [{ ...typeaheadOpts }, { display: 'name', source: diseaseEngine }],
+        });
+      });
   });
 })(window.jQuery, window.Bloodhound);

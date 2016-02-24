@@ -12,7 +12,7 @@ your `<head></head>` tags:
 ```html
 <head>
   ...
-  <link rel="stylesheet" href="https://cdn.rawgit.com/MaayanLab/bioinput/v0.1.0/dist/bioinput.min.css">
+  <link rel="stylesheet" href="https://cdn.rawgit.com/MaayanLab/bioinput/v0.3.0/dist/bioinput.min.css">
   ...
 </head>
 ```
@@ -23,7 +23,7 @@ at the bottom of your html body. (Right before `</body>`)
 ```html
   ...
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-  <script src="https://cdn.rawgit.com/MaayanLab/bioinput/v0.1.0/dist/bioinput.js"></script>
+  <script src="https://cdn.rawgit.com/MaayanLab/bioinput/v0.3.0/dist/bioinput.js"></script>
 </body>
 ```
 

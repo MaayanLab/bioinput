@@ -4,13 +4,9 @@
   "description": "An autocomplete input element for biological terms.",
   "main": "bioinput.js",
   "scripts": {
-    "build": "babel src -d dist --no-comments",
-    "build:watch": "babel src -d dist --watch",
-    "clean": "rm -rf dist/*",
-    "sass": "sass src/bioinput.scss:dist/bioinput.css",
-    "sass:watch": "sass src/bioinput.scss:dist/bioinput.css --watch",
-    "sass:min": "sass src/bioinput.scss:dist/bioinput.min.css --style compressed",
-    "compile": "npm run build && npm run sass:min"
+    "build": "npm run clean && webpack && webpack -p",
+    "build:watch": "webpack --watch",
+    "clean": "rm -rf dist/*"
   },
   "repository": {
     "type": "git",

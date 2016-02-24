@@ -10,7 +10,7 @@ Include Bioinput by adding the script tag to your project's HTML file. Bioinput 
 ```html
   ...
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-  <script src="https://cdn.rawgit.com/MaayanLab/bioinput/v0.3.0/dist/bioinput.js"></script>
+  <script src="https://cdn.rawgit.com/MaayanLab/bioinput/v0.3.0/dist/bioinput.min.js"></script>
 </body>
 ```
 

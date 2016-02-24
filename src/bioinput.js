@@ -1,12 +1,11 @@
 /* eslint no-param-reassign:0 */
-(($, Bloodhound) => {
+(($) => {
   if ($ === undefined) {
-    throw new Error('BioInput requires jQuery and it is currently undefined.');
+    throw new Error('Bioinput requires jQuery and it is currently undefined.');
   }
-  if (Bloodhound === undefined) {
-    throw new Error('BioInput requires Bloodhound and it is currently undefined. ' +
-      'This is included with the latest version of typeahead.js');
-  }
+
+  const Bloodhound = require('../lib/bloodhound')($);
+  require('../lib/typeahead.jquery')($);
 
   /**
    * Most options support both a string or number as well as a function as
@@ -644,4 +643,4 @@
     $('input[data-role=bioinput][data-entity-type=organism]')
       .bioinput(biOpts(new Bloodhound(bhOpts('organism'))));
   });
-})(window.jQuery, window.Bloodhound);
+})(window.jQuery);

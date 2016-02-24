@@ -1,4 +1,5 @@
-(function ($, Bloodhound) {
+/* eslint no-param-reassign:0 */
+(($, Bloodhound) => {
   if ($ === undefined) {
     throw new Error('BioInput requires jQuery and it is currently undefined.');
   }
@@ -15,14 +16,14 @@
   function makeOptionItemFunction(options, key) {
     if (typeof options[key] !== 'function') {
       const propertyName = options[key];
-      options[key] = function (item) { return item[propertyName]; };
+      options[key] = (item) => item[propertyName];
     }
   }
 
   function makeOptionFunction(options, key) {
     if (typeof options[key] !== 'function') {
       const value = options[key];
-      options[key] = function () { return value; };
+      options[key] = () => value;
     }
   }
   /**
@@ -62,16 +63,19 @@
     */
   function keyCombinationInList(keyPressEvent, lookupList) {
     let found = false;
-    $.each(lookupList, function (index, keyCombination) {
+    $.each(lookupList, (index, keyCombination) => {
       if (typeof (keyCombination) === 'number' && keyPressEvent.which === keyCombination) {
         found = true;
         return false;
       }
 
       if (keyPressEvent.which === keyCombination.which) {
-        const alt = !keyCombination.hasOwnProperty('altKey') || keyPressEvent.altKey === keyCombination.altKey;
-        const shift = !keyCombination.hasOwnProperty('shiftKey') || keyPressEvent.shiftKey === keyCombination.shiftKey;
-        const ctrl = !keyCombination.hasOwnProperty('ctrlKey') || keyPressEvent.ctrlKey === keyCombination.ctrlKey;
+        const alt = !keyCombination.hasOwnProperty('altKey') ||
+          keyPressEvent.altKey === keyCombination.altKey;
+        const shift = !keyCombination.hasOwnProperty('shiftKey') ||
+          keyPressEvent.shiftKey === keyCombination.shiftKey;
+        const ctrl = !keyCombination.hasOwnProperty('ctrlKey') ||
+          keyPressEvent.ctrlKey === keyCombination.ctrlKey;
         if (alt && shift && ctrl) {
           found = true;
           return false;
@@ -86,7 +90,7 @@
     tagClass: () => 'bioinput-label bioinput-label-info',
     focusClass: 'focus',
     itemValue: (item) => item ? item.toString() : item,
-    itemText: function (item) { return this.itemValue(item); },
+    itemText: function itemText(item) { return this.itemValue(item); },
     itemTitle: () => null,
     freeInput: true,
     addOnBlur: true,
@@ -117,7 +121,7 @@
 
     this.$container = $('<div class="bioinput"></div>');
     this.$tagList = $('<ul class="bioinput-tag-list"></ul>').appendTo(this.$container);
-    this.$input = $('<input type="text" placeholder="' + this.placeholderText + '"/>')
+    this.$input = $(`<input type="text" placeholder="${this.placeholderText}"/>`)
       .appendTo(this.$container);
 
     this.$element.before(this.$container);
@@ -133,7 +137,7 @@
      * Adds the given item as a new tag. Pass true to dontPushVal to prevent
      * updating the elements val()
      */
-    add: function (inputItem, dontPushVal, options) {
+    add: function add(inputItem, dontPushVal, options) {
       let item = inputItem;
       const self = this;
 
@@ -162,7 +166,9 @@
       }
 
       if (typeof item === 'string' && this.$element[0].tagName === 'INPUT') {
-        const delimiter = (self.options.delimiterRegex) ? self.options.delimiterRegex : self.options.delimiter;
+        const delimiter = (self.options.delimiterRegex)
+          ? self.options.delimiterRegex
+          : self.options.delimiter;
         const entities = item.split(delimiter);
         if (entities.length > 1) {
           for (let i = 0; i < entities.length; i++) {
@@ -182,11 +188,16 @@
       const itemTitle = self.options.itemTitle(item);
 
       // Ignore entities allready added
-      const existing = $.grep(self.entitiesArray, function (searchItem) { return self.options.itemValue(searchItem) === itemValue; })[0];
+      const existing = $.grep(
+        self.entitiesArray,
+        (searchItem) => self.options.itemValue(searchItem) === itemValue
+      )[0];
       if (existing && !self.options.allowDuplicates) {
         // Invoke onTagExists
         if (self.options.onTagExists) {
-          const $existingTag = $('.tag', self.$container).filter(function () { return $(this).data('item') === existing; });
+          const $existingTag = $('.tag', self.$container).filter(function () {
+            return $(this).data('item') === existing;
+          });
           self.options.onTagExists(item, $existingTag);
         }
         return;
@@ -198,7 +209,7 @@
       }
 
       // raise beforeItemAdd arg
-      const beforeItemAddEvent = new $.Event('beforeItemAdd', { item: item, cancel: false, options: options });
+      const beforeItemAddEvent = new $.Event('beforeItemAdd', { item, cancel: false, options });
       self.$element.trigger(beforeItemAddEvent);
       if (beforeItemAddEvent.cancel) {
         return;
@@ -208,11 +219,11 @@
       self.entitiesArray.push(item);
 
       // add a tag element
-      const $tag = $(
-        '<li class="tag ' + htmlEncode(tagClass) +
-        (itemTitle !== null ? ('" title="' + itemTitle) : '') + '">' +
-        htmlEncode(itemText) + '<span data-role="remove"></span></li>'
-      );
+      const liClass = `class="tag ${htmlEncode(tagClass)}"`;
+      const liTitle = itemTitle !== null ? `title="${itemTitle}"` : '';
+      const liText = htmlEncode(itemText);
+      const $tag = $(`<li ${liClass} ${liTitle}>${liText}<span data-role="remove"></span></li>`);
+
       $tag.data('item', item);
       self.$tagList.append($tag);
       $tag.after(' ');
@@ -222,19 +233,21 @@
       }
 
       // Add class when reached maxTags
-      if (self.options.maxTags === self.entitiesArray.length || self.entities().toString().length === self.options.maxInputLength) {
+      if (self.options.maxTags === self.entitiesArray.length
+          || self.entities().toString().length === self.options.maxInputLength) {
         self.$container.addClass('bioinput-max');
       }
 
-      // If using typeahead, once the tag has been added, clear the typeahead value so it does not stick around in the input.
+      // If using typeahead, once the tag has been added, clear the typeahead
+      // value so it does not stick around in the input.
       if ($('.typeahead, .twitter-typeahead', self.$container).length) {
         self.$input.typeahead('val', '');
       }
 
       if (this.isInit) {
-        self.$element.trigger(new $.Event('itemAddedOnInit', { item: item, options: options }));
+        self.$element.trigger(new $.Event('itemAddedOnInit', { item, options }));
       } else {
-        self.$element.trigger(new $.Event('itemAdded', { item: item, options: options }));
+        self.$element.trigger(new $.Event('itemAdded', { item, options }));
       }
     },
 
@@ -242,28 +255,38 @@
      * Removes the given item. Pass true to dontPushVal to prevent updating the
      * elements val()
      */
-    remove: function (inputItem, dontPushVal, options) {
+    remove(inputItem, dontPushVal, options) {
       let item = inputItem;
       const self = this;
 
       if (self.objectItems) {
         if (typeof item === 'object') {
-          item = $.grep(self.entitiesArray, function (other) { return self.options.itemValue(other) === self.options.itemValue(item); });
+          item = $.grep(self.entitiesArray, function (other) {
+            return self.options.itemValue(other) === self.options.itemValue(item);
+          });
         } else {
-          item = $.grep(self.entitiesArray, function (other) { return self.options.itemValue(other) === item; });
+          item = $.grep(self.entitiesArray, function (other) {
+            return self.options.itemValue(other) === item;
+          });
         }
         item = item[item.length - 1];
       }
 
       if (item) {
-        const beforeItemRemoveEvent = new $.Event('beforeItemRemove', { item: item, cancel: false, options: options });
+        const beforeItemRemoveEvent = new $.Event('beforeItemRemove', {
+          item, cancel: false, options,
+        });
         self.$element.trigger(beforeItemRemoveEvent);
         if (beforeItemRemoveEvent.cancel) {
           return;
         }
 
-        $('.tag', self.$container).filter(function () { return $(this).data('item') === item; }).remove();
-        $('option', self.$element).filter(function () { return $(this).data('item') === item; }).remove();
+        $('.tag', self.$container).filter(function () {
+          return $(this).data('item') === item;
+        }).remove();
+        $('option', self.$element).filter(function () {
+          return $(this).data('item') === item;
+        }).remove();
         if ($.inArray(item, self.entitiesArray) !== -1) {
           self.entitiesArray.splice($.inArray(item, self.entitiesArray), 1);
         }
@@ -278,13 +301,13 @@
         self.$container.removeClass('bioinput-max');
       }
 
-      self.$element.trigger(new $.Event('itemRemoved', { item: item, options: options }));
+      self.$element.trigger(new $.Event('itemRemoved', { item, options }));
     },
 
     /**
      * Removes all entities
      */
-    removeAll: function () {
+    removeAll() {
       const self = this;
 
       $('.tag', self.$container).remove();
@@ -301,7 +324,7 @@
      * Refreshes the tags so they match the text/value of their corresponding
      * item.
      */
-    refresh: function () {
+    refresh() {
       const self = this;
       $('.tag', self.$container).each(function () {
         const $tag = $(this);
@@ -321,7 +344,7 @@
     /**
      * Returns the entities added as tags
      */
-    entities: function () {
+    entities() {
       return this.entitiesArray;
     },
 
@@ -329,7 +352,7 @@
      * Assembly value by retrieving the value of each item, and set it on the
      * element.
      */
-    pushVal: function () {
+    pushVal() {
       const self = this;
       const val = $.map(self.entities(), function (item) {
         return self.options.itemValue(item).toString();
@@ -341,7 +364,7 @@
     /**
      * Initializes the tags input behaviour on the element
      */
-    build: function (options) {
+    build(options) {
       const self = this;
 
       self.options = $.extend({}, defaultOptions, options);
@@ -369,7 +392,7 @@
 
         self.$input
           .typeahead(typeaheadConfig, typeaheadDatasets)
-          .on('typeahead:selected', $.proxy(function (obj, datum) {
+          .on('typeahead:selected', $.proxy((obj, datum) => {
             if (typeaheadDatasets.valueKey) {
               self.add(datum[typeaheadDatasets.valueKey]);
             } else {
@@ -379,7 +402,7 @@
           }, self));
       }
 
-      self.$container.on('click', $.proxy(function () {
+      self.$container.on('click', $.proxy(() => {
         if (! self.$element.attr('disabled')) {
           self.$input.removeAttr('disabled');
         }
@@ -387,7 +410,7 @@
       }, self));
 
       if (self.options.addOnBlur && self.options.freeInput) {
-        self.$input.on('focusout', $.proxy(function () {
+        self.$input.on('focusout', $.proxy(() => {
           // HACK: only process on focusout when no typeahead opened, to
           //       avoid adding the typeahead text as tag
           if ($('.typeahead, .twitter-typeahead', self.$container).length === 0) {
@@ -399,10 +422,10 @@
 
       // Toggle the 'focus' css class on the container when it has focus
       self.$container.on({
-        focusin: function () {
+        focusin() {
           self.$container.addClass(self.options.focusClass);
         },
-        focusout: function () {
+        focusout() {
           self.$container.removeClass(self.options.focusClass);
         },
       });
@@ -448,7 +471,9 @@
 
         const text = $input.val();
         const maxLengthReached = self.options.maxChars && text.length >= self.options.maxChars;
-        if (self.options.freeInput && (keyCombinationInList(event, self.options.confirmKeys) || maxLengthReached)) {
+        if (self.options.freeInput
+            && (keyCombinationInList(event, self.options.confirmKeys)
+            || maxLengthReached)) {
             // Only attempt to add a tag if there is data in the field
           if (text.length !== 0) {
             self.add(maxLengthReached ? text.substr(0, self.options.maxChars) : text);
@@ -466,7 +491,7 @@
       }, self));
 
       // Remove icon clicked
-      self.$container.on('click', '[data-role=remove]', $.proxy(function (event) {
+      self.$container.on('click', '[data-role=remove]', $.proxy((event) => {
         if (self.$element.attr('disabled')) {
           return;
         }
@@ -488,7 +513,7 @@
     /**
      * Removes all bioinput behaviour and unregsiter all event handlers
      */
-    destroy: function () {
+    destroy() {
       const self = this;
 
       // Unbind events
@@ -503,14 +528,14 @@
     /**
      * Sets focus on the bioinput
      */
-    focus: function () {
+    focus() {
       this.$input.focus();
     },
 
     /**
      * Returns the internal input element
      */
-    input: function () {
+    input() {
       return this.$input;
     },
 
@@ -518,7 +543,7 @@
      * Returns the element which is wrapped around the internal input. This
      * is normally the $container, but typeahead.js moves the $input element.
      */
-    findInputWrapper: function () {
+    findInputWrapper() {
       let elt = this.$input[0];
       const container = this.$container[0];
       while (elt && elt.parentNode !== container) {
@@ -571,112 +596,52 @@
 
   $.fn.bioinput.Constructor = TagsInput;
 
-  const bHOpts = {
-    queryTokenizer: Bloodhound.tokenizers.whitespace,
-    datumTokenizer: Bloodhound.tokenizers.whitespace,
-    remote: {
-      url: '',
-      wildcard: '%QUERY',
-      transform: (response) => {
-        return response;
+  function bhOpts(entity) {
+    return {
+      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      datumTokenizer: Bloodhound.tokenizers.whitespace,
+      remote: {
+        url: `http://amp.pharm.mssm.edu/biocomplete/api/v1/${entity}/suggest?q=%QUERY`,
+        wildcard: '%QUERY',
+        transform: (response) => response,
       },
-    },
-  };
+    };
+  }
 
-  const assayEngine = new Bloodhound({
-    ...bHOpts,
-    remote: {
-      ...bHOpts.remote,
-      url: 'http://amp.pharm.mssm.edu/biocomplete/api/v1/assay/suggest?q=%QUERY',
-    },
-  });
+  function biOpts(source) {
+    return {
+      itemValue: 'name',
+      autocomplete: [
+        {
+          hint: true,
+          highlight: true,
+          minLength: 1,
+        },
+        {
+          display: 'name',
+          source,
+        },
+      ],
+    };
+  }
 
-  const cellLineEngine = new Bloodhound({
-    ...bHOpts,
-    remote: {
-      ...bHOpts.remote,
-      url: 'http://amp.pharm.mssm.edu/biocomplete/api/v1/cellLine/suggest?q=%QUERY',
-    },
-  });
+  $(() => {
+    $('input[data-role=bioinput][data-entity-type=assay]')
+      .bioinput(biOpts(new Bloodhound(bhOpts('assay'))));
 
-  const geneEngine = new Bloodhound({
-    ...bHOpts,
-    remote: {
-      ...bHOpts.remote,
-      url: 'http://amp.pharm.mssm.edu/biocomplete/api/v1/gene/suggest?q=%QUERY',
-    },
-  });
+    $('input[data-role=bioinput][data-entity-type=cell]')
+      .bioinput(biOpts(new Bloodhound(bhOpts('cellLine'))));
 
-  const diseaseEngine = new Bloodhound({
-    ...bHOpts,
-    remote: {
-      ...bHOpts.remote,
-      url: 'http://amp.pharm.mssm.edu/biocomplete/api/v1/disease/suggest?q=%QUERY',
-    },
-  });
+    $('input[data-role=bioinput][data-entity-type=disease]')
+      .bioinput(biOpts(new Bloodhound(bhOpts('disease'))));
 
-  const organismEngine = new Bloodhound({
-    ...bHOpts,
-    remote: {
-      ...bHOpts.remote,
-      url: 'http://amp.pharm.mssm.edu/biocomplete/api/v1/organism/suggest?q=%QUERY',
-    },
-  });
+    $('input[data-role=bioinput][data-entity-type=drug]')
+      .bioinput(biOpts(new Bloodhound(bhOpts('drug'))));
 
-  const bioInputOpts = {
-    itemValue: 'name',
-  };
+    $('input[data-role=bioinput][data-entity-type=gene]')
+      .bioinput(biOpts(new Bloodhound(bhOpts('gene'))));
 
-  const typeaheadOpts = {
-    hint: true,
-    highlight: true,
-    minLength: 1,
-  };
-
-  $(function () {
-    assayEngine
-      .initialize()
-      .done(() => {
-        $('input[data-role=bioinput][data-entity-type=assay]').bioinput({
-          ...bioInputOpts,
-          autocomplete: [{ ...typeaheadOpts }, { display: 'name', source: assayEngine }],
-        });
-      });
-
-    cellLineEngine
-      .initialize()
-      .done(() => {
-        $('input[data-role=bioinput][data-entity-type=cell]').bioinput({
-          ...bioInputOpts,
-          autocomplete: [{ ...typeaheadOpts }, { display: 'name', source: cellLineEngine }],
-        });
-      });
-
-    geneEngine
-      .initialize()
-      .done(() => {
-        $('input[data-role=bioinput][data-entity-type=gene]').bioinput({
-          ...bioInputOpts,
-          autocomplete: [{ ...typeaheadOpts }, { display: 'name', source: geneEngine }],
-        });
-      });
-
-    organismEngine
-      .initialize()
-      .done(() => {
-        $('input[data-role=bioinput][data-entity-type=organismEngine]').bioinput({
-          ...bioInputOpts,
-          autocomplete: [{ ...typeaheadOpts }, { display: 'name', source: organismEngine }],
-        });
-      });
-
-    diseaseEngine
-      .initialize()
-      .done(() => {
-        $('input[data-role=bioinput][data-entity-type=disease]').bioinput({
-          ...bioInputOpts,
-          autocomplete: [{ ...typeaheadOpts }, { display: 'name', source: diseaseEngine }],
-        });
-      });
+    $('input[data-role=bioinput][data-entity-type=organism]')
+      .bioinput(biOpts(new Bloodhound(bhOpts('organism'))));
   });
 })(window.jQuery, window.Bloodhound);

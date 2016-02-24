@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bio Input</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../dist/bioinput.min.css">
+  <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+  <div class="container wrapper">
+    <form>
+      <div class="form-group assay">
+        <label for="assay">Assay Input</label>
+        <input id="assay" class="form-control" type="text" data-role="bioinput" data-entity-type="assay">
+        <p>Result of calling <code>$('#assay').bioinput('entities');</code>:</p>
+        <pre><code class="assay-val"></code></pre>
+      </div>
+      <div class="form-group cell">
+        <label for="cell">Cell Input</label>
+        <input id="cell" class="form-control" type="text" data-role="bioinput" data-entity-type="cell">
+        <p>Result of calling <code>$('#cell').bioinput('entities');</code>:</p>
+        <pre><code class="cell-val"></code></pre>
+      </div>
+      <div class="form-group disease">
+        <label for="disease">Disease Input</label>
+        <input id="disease" class="form-control" type="text" data-role="bioinput" data-entity-type="disease">
+        <p>Result of calling <code>$('#disease').bioinput('entities');</code>:</p>
+        <pre><code class="disease-val"></code></pre>
+      </div>
+      <div class="form-group drug">
+        <label for="drug">Drug Input</label>
+        <input id="drug" class="form-control" type="text" data-role="bioinput" data-entity-type="drug">
+        <p>Result of calling <code>$('#drug').bioinput('entities');</code>:</p>
+        <pre><code class="drug-val"></code></pre>
+      </div>
+      <div class="form-group gene">
+        <label for="gene">Gene Input</label>
+        <input id="gene" class="form-control" type="text" data-role="bioinput" data-entity-type="gene">
+        <p>Result of calling <code>$('#gene').bioinput('entities');</code>:</p>
+        <pre><code class="gene-val"></code></pre>
+      </div>
+      <div class="form-group organism">
+        <label for="organism">Organism Input</label>
+        <input id="organism" class="form-control" type="text" data-role="bioinput" data-entity-type="organism">
+        <p>Result of calling <code>$('#organism').bioinput('entities');</code>:</p>
+        <pre><code class="organism-val"></code></pre>
+      </div>
+    </form>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
+  <script src="https://cdn.rawgit.com/gaborbernat/typeahead.js/master/dist/typeahead.bundle.min.js"></script>
+  <script src="../dist/bioinput.js"></script>
+  <script src="./index.js"></script>
+</body>
+</html>

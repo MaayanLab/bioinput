@@ -7,7 +7,6 @@
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-    <link rel="stylesheet" href="https://cdn.rawgit.com/MaayanLab/bioinput/v0.3.0/dist/bioinput.min.css">
   </head>
   <body>
     <section class="page-header">
@@ -28,24 +27,8 @@
         </p>
         <h3>Getting Started</h3>
         <p>
-          Include Bioinput (and its dependencies) by adding them to an HTML page in your project.
-          This is done by first including the a copy of the Bioinput css in
-          your <code>&lt;head&gt;&lt;/head&gt;</code> tags:
-          <pre>
-            <code>
-&lt;head&gt;
-  ...
-  &lt;link rel="stylesheet" href="https://cdn.rawgit.com/MaayanLab/bioinput/v0.3.0/dist/bioinput.min.css"&gt;
-  ...
-&lt;/head&gt;
-            </code>
-          </pre>
-        </p>
-        <p>
-          Secondly, include the JavaScript. Be careful with the order of the projects you're including.
-          jQuery should be first and then Bioinput. These can also go in
-          your <code>&lt;head&gt;&lt;/head&gt;</code> tags, however its often best to include them
-          at the bottom of your html body. (Right before <code>&lt;/body&gt;</code>)
+          Include Bioinput by adding the script tag to your project's HTML file.
+          Bioinput requires that jQuery is available, so be sure to include it after jQuery, as shown below:
         </p>
         <pre>
           <code>

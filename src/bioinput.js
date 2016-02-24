@@ -261,13 +261,10 @@
 
       if (self.objectItems) {
         if (typeof item === 'object') {
-          item = $.grep(self.entitiesArray, function (other) {
-            return self.options.itemValue(other) === self.options.itemValue(item);
-          });
+          item = $.grep(self.entitiesArray, (other) =>
+            self.options.itemValue(other) === self.options.itemValue(item));
         } else {
-          item = $.grep(self.entitiesArray, function (other) {
-            return self.options.itemValue(other) === item;
-          });
+          item = $.grep(self.entitiesArray, (other) => self.options.itemValue(other) === item);
         }
         item = item[item.length - 1];
       }
@@ -334,7 +331,7 @@
 
           // Update tag's class and inner text
         $tag.attr('class', null);
-        $tag.addClass('tag ' + htmlEncode(tagClass));
+        $tag.addClass(`tag ${htmlEncode(tagClass)}`);
         $tag.contents().filter(function () {
           return this.nodeType === 3;
         })[0].nodeValue = htmlEncode(itemText);
@@ -354,10 +351,7 @@
      */
     pushVal() {
       const self = this;
-      const val = $.map(self.entities(), function (item) {
-        return self.options.itemValue(item).toString();
-      });
-
+      const val = $.map(self.entities(), (item) => self.options.itemValue(item).toString());
       self.$element.val(val, true).trigger('change');
     },
 

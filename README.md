@@ -4,7 +4,7 @@ Bioinput is a JavaScript library built around the [jQuery](https://jquery.com/),
 [typeahead.js](https://twitter.github.io/typeahead.js), and
 [Bootstrap Tags Input](http://bootstrap-tagsinput.github.io/bootstrap-tagsinput/examples/) libraries.
 It allows you to quickly and easily implement an autocomplete html input element for various
-biological entities. It was created in hopes that it would assist in the standardizing of biological terms. 
+biological entities. It was created in hopes that it would assist in the standardizing of biological terms.
 ###Getting Started
 Include Bioinput (and its dependencies) by adding them to an HTML page in your project.
 This is done by first including the a copy of the Bioinput css in
@@ -17,13 +17,12 @@ your `<head></head>` tags:
 </head>
 ```
 Secondly, include the JavaScript. Be careful with the order of the projects you're including.
-jQuery should be first, then typeahead.js, and finally Bioinput. These can also go in
+jQuery should be first and then Bioinput. These can also go in
 your `<head></head>` tags, however its often best to include them
 at the bottom of your html body. (Right before `</body>`)
 ```html
   ...
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
   <script src="https://cdn.rawgit.com/MaayanLab/bioinput/v0.1.0/dist/bioinput.js"></script>
 </body>
 ```

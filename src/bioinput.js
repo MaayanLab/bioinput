@@ -3,6 +3,7 @@
   if ($ === undefined) {
     throw new Error('Bioinput requires jQuery and it is currently undefined.');
   }
+  require('./bioinput.scss');
 
   const Bloodhound = require('../lib/bloodhound')($);
   require('../lib/typeahead.jquery')($);

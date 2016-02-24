@@ -6,20 +6,7 @@ Bioinput is a JavaScript library built around the [jQuery](https://jquery.com/),
 It allows you to quickly and easily implement an autocomplete html input element for various
 biological entities. It was created in hopes that it would assist in the standardizing of biological terms.
 ###Getting Started
-Include Bioinput (and its dependencies) by adding them to an HTML page in your project.
-This is done by first including the a copy of the Bioinput css in
-your `<head></head>` tags:
-```html
-<head>
-  ...
-  <link rel="stylesheet" href="https://cdn.rawgit.com/MaayanLab/bioinput/v0.3.0/dist/bioinput.min.css">
-  ...
-</head>
-```
-Secondly, include the JavaScript. Be careful with the order of the projects you're including.
-jQuery should be first and then Bioinput. These can also go in
-your `<head></head>` tags, however its often best to include them
-at the bottom of your html body. (Right before `</body>`)
+Include Bioinput by adding the script tag to your project's HTML file. Bioinput requires that jQuery is available, so be sure to include it after jQuery, as shown below:
 ```html
   ...
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
